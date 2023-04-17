@@ -89,9 +89,13 @@ async function main() {
         if (code === 0) {
             let end = Date.now()
             let time = (end - start) / 1000
-            let formattedTime = time.toFixed(1)
+
             if (n > 1) {
-                console.log(`Success! code has been fixed in ${time} seconds!`)
+                console.log(
+                    `Success! code has been fixed in ${time.toFixed(
+                        1,
+                    )} seconds!`,
+                )
             }
             return process.exit(0)
         }
