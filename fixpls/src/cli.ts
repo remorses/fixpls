@@ -43,7 +43,7 @@ async function main() {
         return process.exit(1)
     }
     const hasNonCommitted = hasNonCommittedFiles()
-    if (hasNonCommitted) {
+    if (hasNonCommitted && !process.env.DEV) {
         console.error(
             'Please commit all your changes before running fixpls, as it will modify your files',
         )
@@ -93,18 +93,18 @@ async function main() {
             let lines = fileText.split('\n')
             let codeLine = lines[line - 1]
 
-            const errFormatter = error?.value?.message?.value
+            const errFormatter = error?.value?.message?.value?.trim()
             let res: any
             try {
-                console.log({
-                    codeLine,
-                    command,
-                    errFormatter,
-                })
+                // console.log({
+                //     codeLine,
+                //     command,
+                //     errFormatter,
+                // })
                 res = await openai.createEdit({
                     model: 'text-davinci-edit-001',
                     input: codeLine,
-                    instruction: `Fix the following typescript error:\n${errFormatter}.\nTry to add as little code as possible.`,
+                    instruction: `Fix the following typescript error, try to not add any new code:\n${errFormatter}\n`,
                 })
             } catch (e: any) {
                 console.error(`Could not call OpenAI: ${e.message}`)

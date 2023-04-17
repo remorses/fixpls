@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "fixpls": "node ../fixpls/bin.js"
+    "fixpls": "DEV=1 node ../fixpls/bin.js"
   },
   "keywords": [],
   "author": "remorses <beats.by.morse@gmail.com>",
