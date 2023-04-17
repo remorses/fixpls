@@ -49,18 +49,18 @@ async function main() {
         )
         return process.exit(1)
     }
-    let key = getApiKey()
-    const configuration = new Configuration({
-        apiKey: process.env.OPENAI_API_KEY,
-    })
-    const openai = new OpenAIApi(configuration)
-
-    if (!key) {
+    let apiKey = getApiKey()
+    if (!apiKey) {
         console.error(
             'Please login with `fixpls login` and provide your OpenAI API key',
         )
         return process.exit(1)
     }
+
+    const configuration = new Configuration({
+        apiKey,
+    })
+    const openai = new OpenAIApi(configuration)
 
     let [command, ...args] = process.argv.slice(commandIndex + 1)
     // Check if the command is provided
