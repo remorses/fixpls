@@ -96,10 +96,15 @@ async function main() {
             const errFormatter = error?.value?.message?.value
             let res: any
             try {
+                console.log({
+                    codeLine,
+                    command,
+                    errFormatter,
+                })
                 res = await openai.createEdit({
                     model: 'text-davinci-edit-001',
                     input: codeLine,
-                    instruction: `Fix the following ${command} error:\n${errFormatter}.\nTry to add as little code as possible.`,
+                    instruction: `Fix the following typescript error:\n${errFormatter}.\nTry to add as little code as possible.`,
                 })
             } catch (e: any) {
                 console.error(`Could not call OpenAI: ${e.message}`)
