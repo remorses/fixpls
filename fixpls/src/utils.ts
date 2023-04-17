@@ -21,3 +21,21 @@ export function getApiKey(): string {
         return ''
     }
 }
+
+export function dedupeArray<T>(
+    arr: T[],
+    key: (x: T) => string | undefined,
+): T[] {
+    const seen = new Set()
+    return arr.filter((x) => {
+        const k = key(x)
+        if (!k) {
+            return false
+        }
+        if (seen.has(k)) {
+            return false
+        }
+        seen.add(k)
+        return true
+    })
+}

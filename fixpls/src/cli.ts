@@ -5,7 +5,7 @@ import { Configuration, OpenAIApi } from 'openai'
 import { parse as parseTscErrors } from '@aivenio/tsc-output-parser'
 
 import readline from 'readline'
-import { getApiKey, storeApiKey } from './utils'
+import { dedupeArray, getApiKey, storeApiKey } from './utils'
 
 async function login() {
     const rd = readline.createInterface({
@@ -72,24 +72,50 @@ async function main() {
     if (code === 0) {
         return process.exit(0)
     }
+    const fixer = getFixerForCommand(command)
+    let n = 0
+    let max = 3
+    while (n < max) {
+        n++
+        await iteration({ command, output, openai, fixer })
+    }
 
     console.log()
     console.log(`Trying to fix ${command}...`)
+    console.log(`Go take a cup of coffee while GPT fixes the code for you! ☕️`)
     console.log()
 
-    const errors = parseTscErrors(output)
+    // TODO after first iteration, try running command again, if success then exit, if not, then run again
+}
 
-    await Promise.all(
+async function iteration({
+    fixer,
+    output,
+    openai,
+}: {
+    command: string
+    output: string
+    openai: OpenAIApi
+    fixer: ToolFixer
+}) {
+    const errors = fixer.parseFailOutput(output)
+    type Replacement = {
+        filePath: string
+        replacement: string
+        start: number
+        end: number
+    }
+    let replacements: Array<Replacement | undefined> = await Promise.all(
         errors.map(async (error) => {
             // console.log(JSON.stringify(error, null, 2))
-            let filename = error?.value?.path?.value
-            let abs = path.resolve(filename)
-            if (!fs.existsSync(abs)) {
-                console.log(`Cannot fix, ${abs} does not exist`)
+
+            let { line, absFilePath, instruction, column } = error
+            if (!fs.existsSync(absFilePath)) {
+                console.log(`Cannot fix, ${absFilePath} does not exist`)
                 return
             }
-            let line = error?.value?.cursor.value.line
-            const fileText = fs.readFileSync(abs, 'utf8')
+
+            const fileText = fs.readFileSync(absFilePath, 'utf8')
 
             let lines = fileText.split('\n')
             let { input, start, end } = (() => {
@@ -114,7 +140,6 @@ async function main() {
                 }
             })()
 
-            const errFormatter = error?.value?.message?.value?.trim()
             let res: any
             try {
                 // console.log({
@@ -125,37 +150,98 @@ async function main() {
                 res = await openai.createEdit({
                     model: 'code-davinci-edit-001',
                     input: input,
-                    instruction: `Fix the following typescript error, try to not add any new code:\n${errFormatter}\n`,
+                    instruction: instruction,
+                    temperature: 0.2,
                 })
             } catch (e: any) {
                 console.error(`Could not call OpenAI: ${e.message}`)
                 return
             }
             let choices = res.data.choices
+            console.log(choices[0]?.length)
             let replacement = choices[0]?.text
             if (!replacement) {
                 console.log('No replacement found')
                 return
             }
-            let replacementLines = replacement.split('\n')
-
-            fs.writeFileSync(
-                abs,
-                lines
-                    .map((x, i) => {
-                        if (i - start > replacementLines.length) {
-                            return ''
-                        }
-                        if (i >= start && i < end) {
-                            return replacementLines[i - start]
-                        }
-                        return x
-                    })
-                    // .filter((x) => x)
-                    .join('\n'),
-            )
+            return {
+                filePath: absFilePath,
+                replacement,
+                start,
+                end,
+            }
         }),
     )
+    replacements = replacements.filter((x) => x)
+    // TODO handle concurrency, if i modify the same files twice, i need to remap line numbers, adding an offset each time. i also need to run replacements sequentially in order to not mess up the line numbers
+
+    // to not thing about concurrency for now, i will just do 1 fix per file per iteration (even this way not very optimal? because error could be fixed by a previous fix?)
+    // i should track errors dependencies (code lines that have other errors) and only fix the top group with no dependencies
+    // second iteration other errors will probably be fixed already
+    replacements = dedupeArray(replacements, (x) => x?.filePath)
+
+    for (let rep of replacements) {
+        if (!rep) {
+            continue
+        }
+        const { replacement, filePath, end, start } = rep
+        let replacementLines = replacement.split('\n')
+
+        let lines = fs.readFileSync(filePath, 'utf8').split('\n')
+        fs.writeFileSync(
+            filePath,
+            lines
+                .map((x, i) => {
+                    if (i - start > replacementLines.length) {
+                        return ''
+                    }
+                    if (i >= start && i < end) {
+                        return replacementLines[i - start]
+                    }
+                    return x
+                })
+                // .filter((x) => x)
+                .join('\n'),
+        )
+    }
+}
+
+// later you can add support for other tools simply adding some functions with this interface
+interface ToolFixer {
+    parseFailOutput(output: string): Array<{
+        line: number
+        column?: number
+
+        absFilePath: string
+        instruction: string
+    }>
+}
+
+export function getFixerForCommand(command: string): ToolFixer {
+    if (command === 'tsc') {
+        return tsc
+    }
+    throw new Error(`Fixpls has no support for command ${command}`)
+}
+
+const tsc: ToolFixer = {
+    parseFailOutput(output: string) {
+        let errors = parseTscErrors(output)
+        return errors.map((error) => {
+            let filename = error?.value?.path?.value
+            let abs = path.resolve(filename)
+            let line = error?.value?.cursor.value.line
+            let column = error?.value?.cursor.value.column
+            let errorMessage = error?.value?.message?.value?.trim()
+
+            return {
+                line,
+                column,
+                instruction: `Fix the following typescript error, try to not add any new code:\n${errorMessage}\n`,
+                absFilePath: abs,
+            }
+        })
+    },
 }
 
 function hasNonCommittedFiles() {
