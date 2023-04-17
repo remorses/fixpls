@@ -92,12 +92,17 @@ async function main() {
             let lines = fileText.split('\n')
             let codeLine = lines[line - 1]
 
-            const errFormatter = error
-            const res = await openai.createEdit({
-                model: 'text-davinci-edit-001',
-                input: codeLine,
-                instruction: `Fix the following ${command} error: ${errFormatter}`,
-            })
+            const errFormatter = error?.value?.message?.value
+            let res: any
+            try {
+                res = await openai.createEdit({
+                    model: 'text-davinci-edit-001',
+                    input: codeLine,
+                    instruction: `Fix the following ${command} error: ${errFormatter}`,
+                })
+            } catch (e: any) {
+                console.error(`Could not call OpenAI, ${e.message}}`)
+            }
             let choices = res.data.choices
             let replacement = choices[0]?.text
             if (!replacement) {
