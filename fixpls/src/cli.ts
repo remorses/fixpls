@@ -99,7 +99,7 @@ async function main() {
                 res = await openai.createEdit({
                     model: 'text-davinci-edit-001',
                     input: codeLine,
-                    instruction: `Fix the following ${command} error: ${errFormatter}`,
+                    instruction: `Fix the following ${command} error:\n${errFormatter}\nDo not change the line number or the indentation.\nTry to add as little code as possible.`,
                 })
             } catch (e: any) {
                 console.error(`Could not call OpenAI: ${e.message}`)
