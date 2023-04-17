@@ -1,6 +1,5 @@
 {
     "name": "root",
-    "private": true,
     "scripts": {
         "test": "NODE_ENV=test vitest",
         "watch": "pnpm -r watch",
