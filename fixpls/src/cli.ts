@@ -2,10 +2,15 @@ import { spawn, execSync } from 'child_process'
 import fs from 'fs'
 import path from 'path'
 import { Configuration, OpenAIApi } from 'openai'
-import { parse as parseTscErrors } from '@aivenio/tsc-output-parser'
 
 import readline from 'readline'
-import { dedupeArray, getApiKey, storeApiKey } from './utils'
+import {
+    ToolFixer,
+    dedupeArray,
+    getApiKey,
+    getFixerForCommand,
+    storeApiKey,
+} from './utils'
 
 async function login() {
     const rd = readline.createInterface({
@@ -68,24 +73,22 @@ async function main() {
         console.error('Please provide a command to run after --')
         process.exit(1)
     }
-    const { code, output, stderr } = await exec(command, args)
-    if (code === 0) {
-        return process.exit(0)
-    }
-    const fixer = getFixerForCommand(command)
-    let n = 0
-    let max = 3
-    while (n < max) {
-        n++
-        await iteration({ command, output, openai, fixer })
-    }
-
     console.log()
     console.log(`Trying to fix ${command}...`)
     console.log(`Go take a cup of coffee while GPT fixes the code for you! ☕️`)
     console.log()
-
-    // TODO after first iteration, try running command again, if success then exit, if not, then run again
+    const fixer = getFixerForCommand(command)
+    let n = 0
+    let max = 5
+    while (n < max) {
+        n++
+        console.log(`Running ${command}... (${n}/${max})`)
+        const { code, output, stderr } = await exec(command, args)
+        if (code === 0) {
+            return process.exit(0)
+        }
+        await iteration({ command, output, openai, fixer })
+    }
 }
 
 async function iteration({
@@ -207,42 +210,6 @@ async function iteration({
 }
 
 // later you can add support for other tools simply adding some functions with this interface
-interface ToolFixer {
-    parseFailOutput(output: string): Array<{
-        line: number
-        column?: number
-
-        absFilePath: string
-        instruction: string
-    }>
-}
-
-export function getFixerForCommand(command: string): ToolFixer {
-    if (command === 'tsc') {
-        return tsc
-    }
-    throw new Error(`Fixpls has no support for command ${command}`)
-}
-
-const tsc: ToolFixer = {
-    parseFailOutput(output: string) {
-        let errors = parseTscErrors(output)
-        return errors.map((error) => {
-            let filename = error?.value?.path?.value
-            let abs = path.resolve(filename)
-            let line = error?.value?.cursor.value.line
-            let column = error?.value?.cursor.value.column
-            let errorMessage = error?.value?.message?.value?.trim()
-
-            return {
-                line,
-                column,
-                instruction: `Fix the following typescript error, try to not add any new code:\n${errorMessage}\n`,
-                absFilePath: abs,
-            }
-        })
-    },
-}
 
 function hasNonCommittedFiles() {
     // if this is not a github repo, we don't care

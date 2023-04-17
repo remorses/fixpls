@@ -1,6 +1,7 @@
 import path from 'path'
 import fs from 'fs'
 import getAppDataPath from 'appdata-path'
+import { fixers } from './fixers'
 
 const apiKeyKey = 'openai-api-key.txt'
 
@@ -38,4 +39,27 @@ export function dedupeArray<T>(
         seen.add(k)
         return true
     })
+}
+
+
+
+export interface ToolFixer {
+    parseFailOutput(output: string): Array<{
+        line: number
+        column?: number
+
+        absFilePath: string
+        instruction: string
+    }>
+    commands: Set<string>
+}
+
+export function getFixerForCommand(command: string): ToolFixer {
+    command = command.trim()
+    for (let fixer of fixers) {
+        if (fixer.commands.has(command)) {
+            return fixer
+        }
+    }
+    throw new Error(`Fixpls has no support for command ${command}`)
 }
