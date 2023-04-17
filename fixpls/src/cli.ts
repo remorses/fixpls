@@ -19,6 +19,7 @@ async function login() {
         }),
     )
     key = key.trim()
+    // console.log(key)
     if (!key) {
         console.error('Please provide a valid API key')
         return process.exit(1)
@@ -101,7 +102,7 @@ async function main() {
                     instruction: `Fix the following ${command} error: ${errFormatter}`,
                 })
             } catch (e: any) {
-                console.error(`Could not call OpenAI, ${e.message}}`)
+                console.error(`Could not call OpenAI: ${e.message}`)
                 return
             }
             let choices = res.data.choices
