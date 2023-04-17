@@ -21,6 +21,12 @@
     "author": "Tommaso De Rossi, morse <beats.by.morse@gmail.com>",
     "license": "",
     "devDependencies": {
+        "@types/conf": "^3.0.0",
         "@types/node": "^18.15.11"
+    },
+    "dependencies": {
+        "appdata-path": "^1.0.0",
+        "openai": "^3.2.1",
+        "store": "^2.0.12"
     }
 }

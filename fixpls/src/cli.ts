@@ -1,6 +1,34 @@
 import { spawn } from 'child_process'
+import readline from 'readline'
+import { getApiKey, storeApiKey } from './utils'
+
+async function login() {
+    const rd = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+    })
+    let key = await new Promise<string>((resolve) =>
+        rd.question('OpenAI API (will be stored locally): ', (key) => {
+            resolve(key)
+            rd.close()
+        }),
+    )
+    key = key.trim()
+    if (!key) {
+        console.error('Please provide a valid API key')
+        return process.exit(1)
+    }
+    storeApiKey(key)
+
+    return
+}
 
 async function main() {
+    // handle login command
+    if (process.argv[2] === 'login') {
+        return await login()
+    }
+
     let commandIndex = process.argv.findIndex((x) => x === '--')
     if (commandIndex === -1) {
         console.error(
@@ -8,6 +36,14 @@ async function main() {
         )
         return process.exit(1)
     }
+    let key = getApiKey()
+    if (!key) {
+        console.error(
+            'Please login with `fixpls login` and provide your OpenAI API key',
+        )
+        return process.exit(1)
+    }
+
     let [command, ...args] = process.argv.slice(commandIndex + 1)
     // Check if the command is provided
     if (!command) {
@@ -18,6 +54,7 @@ async function main() {
     if (code === 0) {
         return process.exit(0)
     }
+    console.log(`Trying to fix ${command}...`)
 }
 
 function exec(command, args) {
