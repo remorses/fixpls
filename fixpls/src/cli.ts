@@ -80,11 +80,19 @@ async function main() {
     const fixer = getFixerForCommand(command)
     let n = 0
     let max = 5
+    let start = Date.now()
     while (n < max) {
         n++
-        console.log(`Running ${command}... (${n}/${max})`)
+        console.log(`\nRunning ${command}... (${n}/${max})\n`)
+
         const { code, output, stderr } = await exec(command, args)
         if (code === 0) {
+            let end = Date.now()
+            let time = (end - start) / 1000
+            let formattedTime = time.toFixed(1)
+            if (n > 1) {
+                console.log(`Success! code has been fixed in ${time} seconds!`)
+            }
             return process.exit(0)
         }
         await iteration({ command, output, openai, fixer })
@@ -161,7 +169,7 @@ async function iteration({
                 return
             }
             let choices = res.data.choices
-            console.log(choices[0]?.length)
+            // console.log(choices?.length)
             let replacement = choices[0]?.text
             if (!replacement) {
                 console.log('No replacement found')
