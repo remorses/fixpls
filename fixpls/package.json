@@ -5,6 +5,7 @@
     "main": "dist/index.js",
     "module": "esm/index.js",
     "types": "dist/index.d.ts",
+    "bin": "bin.js",
     "repository": "https://github.com/remorses/",
     "scripts": {
         "build": "tsc && tsc -m es6 --outDir esm",
@@ -13,6 +14,7 @@
     "files": [
         "dist",
         "src",
+        "bin.js",
         "esm"
     ],
     "keywords": [],
