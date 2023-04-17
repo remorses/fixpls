@@ -80,7 +80,7 @@ async function main() {
 
     await Promise.all(
         errors.map(async (error) => {
-            console.log(JSON.stringify(error, null, 2))
+            // console.log(JSON.stringify(error, null, 2))
             let filename = error?.value?.path?.value
             let abs = path.resolve(filename)
             if (!fs.existsSync(abs)) {
@@ -102,6 +102,7 @@ async function main() {
                 })
             } catch (e: any) {
                 console.error(`Could not call OpenAI, ${e.message}}`)
+                return
             }
             let choices = res.data.choices
             let replacement = choices[0]?.text
