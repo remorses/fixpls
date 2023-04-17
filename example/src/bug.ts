@@ -1,6 +1,4 @@
-import { exec } from 'child_processx';
-
-
+import { exec } from 'child_process';
 
 exec('tsc', (err, stdout, stderr) => {
     if (err) {
@@ -9,3 +7,5 @@ exec('tsc', (err, stdout, stderr) => {
     }
     console.log(stdout)
 })
+
+

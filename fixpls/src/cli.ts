@@ -90,8 +90,29 @@ async function main() {
             }
             let line = error?.value?.cursor.value.line
             const fileText = fs.readFileSync(abs, 'utf8')
+
             let lines = fileText.split('\n')
-            let codeLine = lines[line - 1]
+            let { input, start, end } = (() => {
+                if (fileText.length < 1000) {
+                    return {
+                        input: fileText,
+                        start: 0,
+                        end: lines.length,
+                    }
+                } else {
+                    let wrap = 5
+                    let start = Math.max(0, line - wrap)
+                    let end = Math.min(lines.length, line + wrap)
+                    return {
+                        input: lines
+                            .slice(start, end)
+                            .filter((x) => x.trim())
+                            .join('\n'),
+                        start,
+                        end,
+                    }
+                }
+            })()
 
             const errFormatter = error?.value?.message?.value?.trim()
             let res: any
@@ -102,8 +123,8 @@ async function main() {
                 //     errFormatter,
                 // })
                 res = await openai.createEdit({
-                    model: 'text-davinci-edit-001',
-                    input: codeLine,
+                    model: 'code-davinci-edit-001',
+                    input: input,
                     instruction: `Fix the following typescript error, try to not add any new code:\n${errFormatter}\n`,
                 })
             } catch (e: any) {
@@ -116,10 +137,21 @@ async function main() {
                 console.log('No replacement found')
                 return
             }
+            let replacementLines = replacement.split('\n')
+
             fs.writeFileSync(
                 abs,
                 lines
-                    .map((x, i) => (i === line - 1 ? replacement : x))
+                    .map((x, i) => {
+                        if (i - start > replacementLines.length) {
+                            return ''
+                        }
+                        if (i >= start && i < end) {
+                            return replacementLines[i - start]
+                        }
+                        return x
+                    })
+                    // .filter((x) => x)
                     .join('\n'),
             )
         }),
