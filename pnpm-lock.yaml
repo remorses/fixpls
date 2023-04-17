@@ -18,14 +18,22 @@ importers:
       vite: 4.2.1
       vitest: 0.30.1
 
+  example:
+    specifiers:
+      '@types/node': ^18.15.11
+    devDependencies:
+      '@types/node': 18.15.11
+
   fixpls:
     specifiers:
+      '@aivenio/tsc-output-parser': ^2.1.1
       '@types/conf': ^3.0.0
       '@types/node': ^18.15.11
       appdata-path: ^1.0.0
       openai: ^3.2.1
       store: ^2.0.12
     dependencies:
+      '@aivenio/tsc-output-parser': 2.1.1
       appdata-path: 1.0.0
       openai: 3.2.1
       store: 2.0.12
@@ -34,6 +42,11 @@ importers:
       '@types/node': 18.15.11
 
 packages:
+
+  /@aivenio/tsc-output-parser/2.1.1:
+    resolution: {integrity: sha512-aCLAjh8lRc3I+giJSiqe38wrtMOZZFaDdAjqbiPSu8xnH2FBvZMJmVBdk8nNP8OMw4qJJ3OS8/D9DXWoMCAe0g==}
+    hasBin: true
+    dev: false
 
   /@babel/code-frame/7.21.4:
     resolution: {integrity: sha512-LYvhNKfwWSPpocw8GI7gpK2nq3HSDuEPC/uSYaALSJu9xjsalaaYFOq0Pwt5KmVqwEbZlDu81aLXwBOmD/Fv9g==}
