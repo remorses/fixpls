@@ -221,7 +221,6 @@ async function iteration({
     }
 }
 
-// later you can add support for other tools simply adding some functions with this interface
 
 function hasNonCommittedFiles() {
     // if this is not a github repo, we don't care
