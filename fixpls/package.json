@@ -1,12 +1,12 @@
 {
     "name": "fixpls",
     "version": "0.0.0",
-    "description": "",
+    "description": "Fix your compiler errors automatically with GPT3",
     "main": "dist/index.js",
     "module": "esm/index.js",
     "types": "dist/index.d.ts",
     "bin": "bin.js",
-    "repository": "https://github.com/remorses/",
+    "repository": "https://github.com/remorses/fixpls",
     "scripts": {
         "build": "tsc && tsc -m es6 --outDir esm",
         "watch": "tsc -w"
@@ -19,7 +19,7 @@
     ],
     "keywords": [],
     "author": "Tommaso De Rossi, morse <beats.by.morse@gmail.com>",
-    "license": "",
+    "license": "MIT",
     "devDependencies": {
         "@types/conf": "^3.0.0",
         "@types/node": "^18.15.11"
