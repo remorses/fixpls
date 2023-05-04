@@ -8,7 +8,7 @@
     "bin": "bin.js",
     "repository": "https://github.com/remorses/fixpls",
     "scripts": {
-        "build": "tsc && tsc -m es6 --outDir esm",
+        "build": "cp ../README.md ./README.md && tsc && tsc -m es6 --outDir esm",
         "watch": "tsc -w"
     },
     "files": [
