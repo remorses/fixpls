@@ -1,7 +1,7 @@
 <div align='center'>
     <br/>
     <br/>
-    <img src='' width='320px'>
+    <!-- <img src='' width='320px'> -->
     <br/>
     <h3>fixpls</h3>
     <p>Fix your compiler errors automatically with GPT</p>
