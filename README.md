@@ -36,3 +36,9 @@ It will then try to run again the compiler until it exits with a 0 exit code.
 To add a compiler you will need to add a file like [`tsc.ts`](./fixpls/src/fixers/tsc.ts) that is able to parse your compiler errors and create a prompt
 
 It should be easy to add new compiler like `rustc`, `pylint` and many others (even using stack traces as errors to fix runtime crashes)
+
+## Sponsors
+
+[**Notaku**](https://notaku.so)
+
+[![Notaku](https://notaku.so/github_banner.jpg)](https://notaku.so)
