@@ -27,7 +27,6 @@
     "dependencies": {
         "@aivenio/tsc-output-parser": "^2.1.1",
         "appdata-path": "^1.0.0",
-        "openai": "^3.2.1",
-        "store": "^2.0.12"
+        "openai": "^3.2.1"
     }
 }

@@ -31,12 +31,10 @@ importers:
       '@types/node': ^18.15.11
       appdata-path: ^1.0.0
       openai: ^3.2.1
-      store: ^2.0.12
     dependencies:
       '@aivenio/tsc-output-parser': 2.1.1
       appdata-path: 1.0.0
       openai: 3.2.1
-      store: 2.0.12
     devDependencies:
       '@types/conf': 3.0.0
       '@types/node': 18.15.11
@@ -2419,10 +2417,6 @@ packages:
   /std-env/3.3.2:
     resolution: {integrity: sha512-uUZI65yrV2Qva5gqE0+A7uVAvO40iPo6jGhs7s8keRfHCmtg+uB2X6EiLGCI9IgL1J17xGhvoOqSz79lzICPTA==}
     dev: true
-
-  /store/2.0.12:
-    resolution: {integrity: sha512-eO9xlzDpXLiMr9W1nQ3Nfp9EzZieIQc10zPPMP5jsVV7bLOziSFFBP0XoDXACEIFtdI+rIz0NwWVA/QVJ8zJtw==}
-    dev: false
 
   /stream-transform/2.1.3:
     resolution: {integrity: sha512-9GHUiM5hMiCi6Y03jD2ARC1ettBXkQBoQAe7nJsPknnI0ow10aXjTnew8QtYQmLjzn974BnmWEAJgCY6ZP1DeQ==}
